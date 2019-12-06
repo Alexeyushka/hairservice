@@ -10,7 +10,7 @@ mongoose.connect("mongodb://localhost/hairsalon_db");
 
 var app = express();
 app.set('view engine', 'ejs');
-
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(require("express-session")({
 	secret: "Rusty is best dog",
 	resave: false,
@@ -19,8 +19,12 @@ app.use(require("express-session")({
 app.use(passport.initialize());
 app.use(passport.session());
 
+passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserealizeUser());
+passport.deserializeUser(User.deserializeUser());
+
+//===========
+//ROUTES
 
 app.get("/", function(req, res){
 	res.render("home");
@@ -28,6 +32,43 @@ app.get("/", function(req, res){
 
 app.get("/secret", function(req, res){
 	res.render("secret");
+});
+
+// Auth Routes
+//show signup form
+app.get("/register", function(req, res){
+	res.render("register");
+});
+
+//handling user sign up
+app.post("/register", function(req, res){
+	req.body.username
+	req.body.password
+	User.register(new User({username: req.body.username}), req.body.password, function(err, user){
+		if(err){
+			console.log(err);
+			return res.render("register");
+			
+		}
+		passport.authenticate("local")(req, res, function(){
+			res.redirect("/secret");
+		})
+	})
+});
+
+
+//LOGIN Routes
+//render login form
+
+app.get("/login", function(req, res){
+	res.render("login");
+});
+//login logic
+app.post("/login", passport.authenticate("local", {
+	successRedirect: "/secret",
+	failureRedirect: "/login"
+}), function(req, res){
+	
 });
 
 app.listen(3000, process.env.IP, function(){
