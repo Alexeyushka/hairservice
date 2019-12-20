@@ -11,6 +11,7 @@ mongoose.connect("mongodb://localhost/hairsalon_db");
 var app = express();
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 app.use(require("express-session")({
 	secret: "Rusty is best dog",
 	resave: false,
@@ -32,6 +33,8 @@ app.get("/", function(req, res){
 
 app.get("/secret", isLoggedIn, function(req, res){
 	res.render("secret");
+	if (req.user.username == "admin")
+		console.log("hello admin");
 });
 
 // Auth Routes
@@ -51,9 +54,9 @@ app.post("/register", function(req, res){
 			
 		}
 		passport.authenticate("local")(req, res, function(){
-			res.redirect("/secret");
-		})
-	})
+			res.redirect("/secret");			
+		});
+	});
 });
 
 
@@ -68,13 +71,14 @@ app.post("/login", passport.authenticate("local", {
 	successRedirect: "/secret",
 	failureRedirect: "/login"
 }), function(req, res){
-	
+
 });
 
 app.get("/logout", function(req, res){
 	req.logout();
 	res.redirect("/");
 });
+
 
 function isLoggedIn(req, res, next){
 	if (req.isAuthenticated()){
