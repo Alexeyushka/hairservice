@@ -27,14 +27,32 @@ passport.deserializeUser(User.deserializeUser());
 //===========
 //ROUTES
 
+
+//=======================================???????????
+app.post("/secret", function(req, res){
+	console.log(req.body.tea);
+	console.log(req.body.coffee);
+	res.redirect("/addproduct");
+});
+//=======================================???????????
+
+//handling user sign up
 app.get("/", function(req, res){
 	res.render("home");
 });
 
 app.get("/secret", isLoggedIn, function(req, res){
+	var database = [];
+	User.find({}, function(err, foundData) {
+		database = foundData[0];
+		console.log(database.tea);
+	});
 	res.render("secret");
 	if (req.user.username == "admin")
+	{
 		console.log("hello admin");
+	}
+	
 });
 
 // Auth Routes
