@@ -19,6 +19,8 @@ app.use(require("express-session")({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.static('scripts'));
+
 
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
@@ -28,11 +30,21 @@ passport.deserializeUser(User.deserializeUser());
 //ROUTES
 
 
-//=======================================???????????
-app.post("/secret", function(req, res){
-	console.log(req.body.tea);
-	console.log(req.body.coffee);
-	res.redirect("/addproduct");
+// =======================================???????????
+app.post("/tea_added", function(req, res){
+	const click = {clickTime: new Date()};
+	console.log(click);
+	
+	User.find({}, function(err, foundData) {
+		database = foundData[0];
+		foundData[0].tea.save(click, function (err, result) {
+		if (err) {
+			console.log(err);
+		}
+		console.log('click added to db');
+		res.sendStatus(201);
+		});
+	});
 });
 //=======================================???????????
 
@@ -41,18 +53,25 @@ app.get("/", function(req, res){
 	res.render("home");
 });
 
+app.get("/admin", isLoggedIn, function(req, res){
+	res.render("admin");
+});
+
 app.get("/secret", isLoggedIn, function(req, res){
 	var database = [];
 	User.find({}, function(err, foundData) {
 		database = foundData[0];
 		console.log(database.tea);
 	});
-	res.render("secret");
 	if (req.user.username == "admin")
 	{
 		console.log("hello admin");
+		res.redirect("admin");
+	} 
+	else 
+	{
+		res.render("secret");
 	}
-	
 });
 
 // Auth Routes
