@@ -36,14 +36,18 @@ app.post("/tea_added", function(req, res){
 	console.log(click);
 	
 	User.find({}, function(err, foundData) {
-		database = foundData[0];
-		foundData[0].tea.save(click, function (err, result) {
-		if (err) {
-			console.log(err);
-		}
-		console.log('click added to db');
-		res.sendStatus(201);
-		});
+		database = foundData[5];
+		console.log(foundData[5]);
+		// foundData[5].save( { tea : 1 } );
+		foundData[5].tea = foundData[5].tea + 1;
+		console.log(foundData[5]);
+		// foundData[0].tea.save(click, function (err, result) {
+		// if (err) {
+		// 	console.log(err);
+		// }
+		// console.log('click added to db');
+		// res.sendStatus(201);
+		// });
 	});
 });
 //=======================================???????????
@@ -55,12 +59,18 @@ app.get("/", function(req, res){
 
 app.get("/admin", isLoggedIn, function(req, res){
 	res.render("admin");
+	User.find({}, function(err, foundData) {
+		database = foundData[5];
+		if (foundData[5].tea === 1) {
+			console.log("added");
+		}
+	});
 });
 
 app.get("/secret", isLoggedIn, function(req, res){
 	var database = [];
 	User.find({}, function(err, foundData) {
-		database = foundData[0];
+		database = foundData[5];
 		console.log(database.tea);
 	});
 	if (req.user.username == "admin")
